@@ -9,7 +9,7 @@ from typing import List, Optional
 from qiskit.utils import optionals as _optionals
 
 from . import peptide
-from .utils.protein_plotter import ProteinPlotter
+# from .utils.protein_plotter import ProteinPlotter
 from .utils.protein_shape_decoder import ProteinShapeDecoder
 from .utils.protein_shape_file_gen import ProteinShapeFileGen
 
