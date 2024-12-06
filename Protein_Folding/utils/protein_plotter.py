@@ -9,6 +9,9 @@ from typing import Optional
 import numpy as np
 from qiskit.utils import optionals as _optionals
 
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+
 from Protein_Folding.utils.protein_shape_file_gen import (
     ProteinShapeFileGen,
 )
