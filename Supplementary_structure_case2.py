@@ -24,7 +24,7 @@ if __name__ == '__main__':
     service = QiskitRuntimeService(
         channel='ibm_quantum',
         instance='ibm-q-ccf/qradle-catalyzer/qradle-catalyzer',
-        token='98da9815dd1fbbe8d3010882e9a317f9495f2d61652ec33f19429c2136da25975a0728843211b0b389d731778c600c27e30b5edfeee39c318793a925668dbfae'
+        token='token'
     )
 
     char_count = len(main_chain_residue_seq)
