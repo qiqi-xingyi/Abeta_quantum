@@ -19,6 +19,14 @@ protein_name = '6mu3_L'
 
 if __name__ == '__main__':
 
+    ########## Create a Quantum Service ############
+
+    service = QiskitRuntimeService(
+        channel='ibm_quantum',
+        instance='ibm-q-ccf/qradle-catalyzer/qradle-catalyzer',
+        token='98da9815dd1fbbe8d3010882e9a317f9495f2d61652ec33f19429c2136da25975a0728843211b0b389d731778c600c27e30b5edfeee39c318793a925668dbfae'
+    )
+
     char_count = len(main_chain_residue_seq)
     print(f'Num of Acid:{char_count}')
 
@@ -43,13 +51,6 @@ if __name__ == '__main__':
 
     # print('Operator',hamiltonian)
 
-    ########## Create a Quantum Service ############
-
-    service = QiskitRuntimeService(
-        channel='ibm_quantum',
-        instance='ibm-q-ccf/qradle-catalyzer/qradle-catalyzer',
-        token='98da9815dd1fbbe8d3010882e9a317f9495f2d61652ec33f19429c2136da25975a0728843211b0b389d731778c600c27e30b5edfeee39c318793a925668dbfae'
-    )
     # ansatz = EfficientSU2(hamiltonian.num_qubits)
     qubits_num = hamiltonian.num_qubits + 2
     print(f'Num of qubits:{qubits_num}')
@@ -58,19 +59,12 @@ if __name__ == '__main__':
     # Run the VQE algorithm
     energy_list, res, ansatz, top_5_results = vqe_instance.run_vqe()
 
-
-    with open('./QC_Status_Analysis/System_Enegry/energy_list.txt', 'w') as file:
+    with open('./QC_Status_Analysis/System_Enegry/energy_list_6mu3_L.txt', 'w') as file:
         for item in energy_list:
             file.write(str(item) + '\n')
 
     state_calculator = StateCalculator(service, qubits_num, ansatz)
     prob_distribution = state_calculator.get_probability_distribution(res)
-
-    # print(f'VQE_result:{prob_distribution}')
-
-    with open('./QC_Status_Analysis/Prob_distribution/prob_distribution.txt', 'w') as file:
-        for key, value in prob_distribution.items():
-            file.write(f'{key}: {value}\n')
 
     protein_result = protein_folding_problem.interpret(prob_distribution)
 
