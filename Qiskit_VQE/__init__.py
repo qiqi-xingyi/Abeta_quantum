@@ -6,3 +6,4 @@
 
 from .vqe import VQE
 from .measure import StateCalculator
+from .vqe_top5 import VQE5
