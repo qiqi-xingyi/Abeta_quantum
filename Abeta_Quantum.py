@@ -10,68 +10,74 @@ from Protein_Folding.interactions.miyazawa_jernigan_interaction import MiyazawaJ
 from Protein_Folding.penalty_parameters import PenaltyParameters
 from Protein_Folding.protein_folding_problem import ProteinFoldingProblem
 from qiskit_ibm_runtime import QiskitRuntimeService
-from Qiskit_VQE import VQE
-from Qiskit_VQE import StateCalculator
+from Qiskit_VQE import VQE, StateCalculator
 
-main_chain_residue_seq = "DAEFRHDSGYEVHHQKLVFFAEDVGSNKGAIIGLMVGGVVIA" #Abeta-42
-side_chain_residue_sequences = ['' for _ in range(len(main_chain_residue_seq))]
+# Configurable parameters: window size and starting window index
+window_size = 12
+# Option 1: Specify the 1-based starting window index directly
+start_window = 7
+
+# Option 2: Calculate start_window from a residue position
+# Uncomment the following lines and comment out Option 1 if needed:
+# start_pos = 16
+# start_window = max(start_pos - window_size + 1, 1)
+
+main_chain_residue_seq = "DAEFRHDSGYEVHHQKLVFFAEDVGSNKGAIIGLMVGGVVIA"
 protein_name = 'Abeta_A'
 
-window_size = 12
-
-if __name__ == '__main__':
-
+def main():
+    # Initialize IBM Quantum Runtime service
     service = QiskitRuntimeService(
         channel='ibm_quantum',
         instance='ibm-q-ccf/qradle-catalyzer/qradle-catalyzer',
-        token='98da9815dd1fbbe8d3010882e9a317f9495f2d61652ec33f19429c2136da25975a0728843211b0b389d731778c600c27e30b5edfeee39c318793a925668dbfae'
+        token='YOUR_TOKEN_HERE'
     )
 
-    output_dir = f"Abeta_42/{protein_name}"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    # Create output directory
+    output_dir = os.path.join("Abeta_42", protein_name)
+    os.makedirs(output_dir, exist_ok=True)
 
+    # Set up interaction and penalty parameters
     mj_interaction = MiyazawaJerniganInteraction()
-
     penalty_terms = PenaltyParameters(10, 10, 10)
 
+    total_windows = len(main_chain_residue_seq) - window_size + 1
+    print(f"Total windows available: {total_windows}. Starting from window {start_window}.")
 
-    for i in range(len(main_chain_residue_seq) - window_size + 1):
+    for idx in range(start_window - 1, total_windows):
+        window_idx = idx + 1
+        window_seq = main_chain_residue_seq[idx:idx + window_size]
+        print(f"Processing window {window_idx}: positions {idx+1} to {idx+window_size}, sequence: {window_seq}")
 
-        window_main_chain = main_chain_residue_seq[i:i+window_size]
-        window_side_chain = ['' for _ in range(len(window_main_chain))]
+        peptide = Peptide(window_seq, [''] * window_size)
+        problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
+        hamiltonian = problem.qubit_op()
 
-        print(f'Processing sliding window {i+1}, positions {i+1} to {i+window_size}, sequence: {window_main_chain}')
+        qubit_num = hamiltonian.num_qubits + 2
+        print(f"Window {window_idx} requires {qubit_num} qubits")
 
-        peptide = Peptide(window_main_chain, window_side_chain)
+        vqe_inst = VQE(service=service, hamiltonian=hamiltonian, min_qubit_num=qubit_num, maxiter=30)
+        energy_list, res, ansatz = vqe_inst.run_vqe()
 
-        protein_folding_problem = ProteinFoldingProblem(peptide, mj_interaction, penalty_terms)
+        # Save energy convergence history
+        energy_file = os.path.join(output_dir, f'energy_list_window_{window_idx}.txt')
+        with open(energy_file, 'w') as f:
+            for e in energy_list:
+                f.write(f"{e}\n")
 
-        hamiltonian = protein_folding_problem.qubit_op()
+        # Calculate and save probability distribution
+        prob_dist = StateCalculator(service, qubit_num, ansatz).get_probability_distribution(res)
+        prob_file = os.path.join(output_dir, f'prob_distribution_window_{window_idx}.txt')
+        with open(prob_file, 'w') as f:
+            for state, p in prob_dist.items():
+                f.write(f"{state}: {p}\n")
+        print(f"VQE result for window {window_idx}: {prob_dist}")
 
-        qubits_num = hamiltonian.num_qubits + 2
-        print(f'Sliding window {i+1} requires {qubits_num} qubits')
+        # Interpret and save structure as XYZ
+        result = problem.interpret(prob_dist)
+        result.save_xyz_file(name=f'{protein_name}_window_{window_idx}', path=output_dir)
+        print(f"Saved structure .xyz for window {window_idx}")
 
-        vqe_instance = VQE(service=service, hamiltonian=hamiltonian, min_qubit_num=qubits_num, maxiter=30)
+if __name__ == '__main__':
+    main()
 
-        energy_list, res, ansatz = vqe_instance.run_vqe()
-
-        energy_file = os.path.join(output_dir, f'energy_list_window_{i+1}.txt')
-        with open(energy_file, 'w') as file:
-            for item in energy_list:
-                file.write(str(item) + '\n')
-
-        state_calculator = StateCalculator(service, qubits_num, ansatz)
-        prob_distribution = state_calculator.get_probability_distribution(res)
-
-        print(f'VQE result for sliding window {i+1}: {prob_distribution}')
-
-        prob_file = os.path.join(output_dir, f'prob_distribution_window_{i+1}.txt')
-        with open(prob_file, 'w') as file:
-            for key, value in prob_distribution.items():
-                file.write(f'{key}: {value}\n')
-
-        protein_result = protein_folding_problem.interpret(prob_distribution)
-
-        protein_result.save_xyz_file(name=f'{protein_name}_window_{i+1}', path=output_dir)
-        print(f"Protein structure for sliding window {i+1} has been saved as .xyz file")
