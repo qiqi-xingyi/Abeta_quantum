@@ -17,7 +17,7 @@ main_chain_residue_seq = "DAEFRHDSGYEVHHQKLVFFAEDVGSNKGAIIGLMVGGVVIA" #Abeta-42
 side_chain_residue_sequences = ['' for _ in range(len(main_chain_residue_seq))]
 protein_name = 'Abeta_A'
 
-window_size = 7
+window_size = 12
 
 if __name__ == '__main__':
 
