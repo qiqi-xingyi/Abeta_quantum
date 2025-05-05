@@ -20,7 +20,7 @@ def read_xyz_file(file_path):
         return atoms, np.array(coords)
 
 if __name__ == '__main__':
-    protein_name = './Abeta_A'
+    protein_name = 'Abeta_A'
     output_dir = f"Post_Processing/process_data/{protein_name}"
     window_size = 7  # Sliding window size
 
