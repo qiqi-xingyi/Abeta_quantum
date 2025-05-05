@@ -29,8 +29,8 @@ def main():
     # Initialize IBM Quantum Runtime service
     service = QiskitRuntimeService(
         channel='ibm_quantum',
-        instance='ibm-q-ccf/qradle-catalyzer/qradle-catalyzer',
-        token='YOUR_TOKEN_HERE'
+        instance='',
+        token=''
     )
 
     # Prepare output directory
