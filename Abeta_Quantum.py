@@ -14,8 +14,8 @@ from Qiskit_VQE import VQE, StateCalculator
 
 # Configurable parameters
 window_size = 12             # length of each sliding window
-start_window = 7             # 1-based index of the first window to process
-step_size = 1                # stride between windows (e.g., 2 skips every other window)
+start_window = 1             # 1-based index of the first window to process
+step_size = 10                # stride between windows (e.g., 2 skips every other window)
 
 # Optionally calculate start_window from a residue position
 # Uncomment to use:
