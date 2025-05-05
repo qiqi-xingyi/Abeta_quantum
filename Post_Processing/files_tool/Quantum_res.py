@@ -128,7 +128,7 @@ class QuantumResult:
         a.ending_model = 1
         a.make()
 
-        # generated_model = os.path.join(self.base_dir, 'protein_full.B99990001.pdb')
+        # generated_model = os.path.join(self.base_dir, 'Abeta_42.pdb')
         # if os.path.exists(generated_model):
         #     os.rename(generated_model, self.full_model_filename)
         #     print(f"Full atomic model '{self.full_model_filename}' has been generated.")

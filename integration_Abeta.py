@@ -20,7 +20,7 @@ def read_xyz_file(file_path):
         return atoms, np.array(coords)
 
 if __name__ == '__main__':
-    protein_name = 'Abeta_A'
+    protein_name = './Abeta_A'
     output_dir = f"Post_Processing/process_data/{protein_name}"
     window_size = 7  # Sliding window size
 
@@ -28,6 +28,8 @@ if __name__ == '__main__':
     xyz_files = sorted([f for f in os.listdir(output_dir) if f.endswith('.xyz') and 'window' in f],
                        key=lambda x: int(x.split('_window_')[1].split('.xyz')[0]))
     total_windows = len(xyz_files)
+
+    print("total_windows:",total_windows)
 
     # Read prediction results for all sliding windows
     window_atoms_list = []

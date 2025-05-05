@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     create_full_protein(xyz_file_path)
 
-    rename_and_move_file('protein_full.B99990001.pdb','full_model.pdb',f'./process_data/{protein_id}')
+    rename_and_move_file('process_data/Abeta_42.pdb', 'full_model.pdb', f'./process_data/{protein_id}')
 
     create_docking_file(Q_res_path, AF2_res_path, protein_id)
 

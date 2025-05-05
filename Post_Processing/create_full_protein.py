@@ -8,7 +8,7 @@ from files_tool import QuantumResult
 
 if __name__ == '__main__':
 
-    xyz_file_path = 'process_data/6mu3_L/6mu3_L.xyz'
+    xyz_file_path = './process_data/merged_abeta42.xyz'
 
     quantum_result = QuantumResult(xyz_file_path)
 
